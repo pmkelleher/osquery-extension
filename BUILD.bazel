@@ -33,6 +33,7 @@ go_library(
         "//tables/pendingappleupdates",
         "//tables/puppet",
         "//tables/sofa",
+        "//tables/tetherator",
         "//tables/unifiedlog",
         "//tables/wifi_network",
         "@com_github_osquery_osquery_go//:osquery-go",

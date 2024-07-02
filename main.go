@@ -18,6 +18,7 @@ import (
 	"github.com/macadmins/osquery-extension/tables/pendingappleupdates"
 	"github.com/macadmins/osquery-extension/tables/puppet"
 	"github.com/macadmins/osquery-extension/tables/sofa"
+	"github.com/macadmins/osquery-extension/tables/tetherator"
 	"github.com/macadmins/osquery-extension/tables/unifiedlog"
 	"github.com/macadmins/osquery-extension/tables/wifi_network"
 
@@ -67,6 +68,7 @@ func main() {
 	if runtime.GOOS == "darwin" {
 		darwinPlugins := []osquery.OsqueryPlugin{
 			table.NewPlugin("filevault_users", filevaultusers.FileVaultUsersColumns(), filevaultusers.FileVaultUsersGenerate),
+			table.NewPlugin("tetherator", tetherator.DevicesColumns(), tetherator.DevicesGenerate),
 			table.NewPlugin("macos_profiles", macosprofiles.MacOSProfilesColumns(), macosprofiles.MacOSProfilesGenerate),
 			table.NewPlugin("mdm", mdm.MDMInfoColumns(), mdm.MDMInfoGenerate),
 			table.NewPlugin("munki_info", munki.MunkiInfoColumns(), munki.MunkiInfoGenerate),

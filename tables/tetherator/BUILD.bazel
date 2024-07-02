@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "tetherator",
     srcs = ["tetherator.go"],
-    importpath = "github.com/pmkelleher/osquery-extension/tree/dev/tables/tetherator",
+    importpath = "github.com/macadmins/osquery-extension/tables/tetherator",
     visibility = ["//visibility:public"],
     deps = [
         "@com_github_osquery_osquery_go//plugin/table",

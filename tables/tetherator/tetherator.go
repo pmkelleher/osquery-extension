@@ -1,95 +1,122 @@
 package tetherator
 
 import (
-	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
-	"strings"
 
 	"github.com/osquery/osquery-go/plugin/table"
 	"github.com/pkg/errors"
 )
 
-// FileVaultUsers
-type FileVaultUser struct {
-	Username string
-	UUID     string
+type Status struct {
+	Name   string `json:"name"`
+	Result Result `json:"result"`
 }
 
-func FileVaultUsersColumns() []table.ColumnDefinition {
+type Result struct {
+	Active           bool             `json:"Active"`
+	DeviceRoster     []Device         `json:"Device Roster"`
+	PrimaryInterface PrimaryInterface `json:"Primary Interface"`
+	Standalone       bool             `json:"Standalone"`
+}
+
+type Device struct {
+	Bridged         bool   `json:"Bridged"`
+	CheckInAttempts int    `json:"Check In Attempts"`
+	CheckInPending  bool   `json:"Check In Pending"`
+	CheckedIn       bool   `json:"Checked In"`
+	LocationID      int    `json:"Location ID"`
+	Name            string `json:"Name"`
+	Paired          bool   `json:"Paired"`
+	SerialNumber    string `json:"Serial Number"`
+}
+
+type PrimaryInterface struct {
+	BSDName      string `json:"BSD Name"`
+	IPAddress    string `json:"IP Address"`
+	Mbps         int    `json:"Mbps"`
+	UserReadable string `json:"User Readable"`
+	Wired        bool   `json:"Wired"`
+}
+
+func DevicesColumns() []table.ColumnDefinition {
 	return []table.ColumnDefinition{
-		table.TextColumn("username"),
-		table.TextColumn("uuid"),
+		table.TextColumn("name"),
+		table.TextColumn("serial_number"),
+		table.IntegerColumn("bridged"),
+		table.IntegerColumn("check_in_attempts"),
+		table.IntegerColumn("check_in_pending"),
+		table.IntegerColumn("checked_in"),
+		table.IntegerColumn("location_id"),
+		table.IntegerColumn("paired"),
 	}
 }
 
 // Generate will be called whenever the table is queried. Since our data in these
 // plugins is flat it will return a single row.
-func FileVaultUsersGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+func DevicesGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 	var results []map[string]string
-	users, err := getFileVaultUsers()
+	devices, err := getTetheratorDevices()
 	if err != nil {
 		fmt.Println(err)
 		return results, err
 	}
 
-	for _, item := range users {
+	for _, device := range devices {
 		results = append(results, map[string]string{
-			"username": item.Username,
-			"uuid":     item.UUID,
+			"name":              device.Name,
+			"serial_number":     device.SerialNumber,
+			"bridged":           fmt.Sprintf("%d", boolToInt(device.Bridged)),
+			"check_in_attempts": fmt.Sprintf("%d", device.CheckInAttempts),
+			"check_in_pending":  fmt.Sprintf("%d", boolToInt(device.CheckInPending)),
+			"checked_in":        fmt.Sprintf("%d", boolToInt(device.CheckedIn)),
+			"location_id":       fmt.Sprintf("%d", device.LocationID),
+			"paired":            fmt.Sprintf("%d", boolToInt(device.Paired)),
 		})
 	}
 
 	return results, nil
 }
 
-func getFileVaultUsers() ([]FileVaultUser, error) {
-	var users []FileVaultUser
+func getTetheratorDevices() ([]Device, error) {
+	var devices []Device
 
-	bytes, err := runFDESetupList()
-
+	bytes, err := runAssetCacheTetheratorStatus()
 	if err != nil {
-		return users, errors.Wrap(err, "runFDESetupList")
+		return devices, errors.Wrap(err, "runAssetCacheTetheratorStatus")
 	}
 
-	users, err = processFDESetupToUsers(bytes)
+	status, err := processTetheratorStatus(bytes)
 	if err != nil {
-		return users, errors.Wrap(err, "processFDESetupToUsers")
+		return devices, errors.Wrap(err, "processTetheratorStatus")
 	}
 
-	return users, nil
-
+	return status.Result.DeviceRoster, nil
 }
 
-func runFDESetupList() ([]byte, error) {
-	var out []byte
-	out, err := exec.Command("/usr/bin/fdesetup", "list").Output()
-
+func runAssetCacheTetheratorStatus() ([]byte, error) {
+	out, err := exec.Command("/usr/bin/assetCacheTetheratorUtil", "-j", "status").Output()
 	if err != nil {
-		return out, errors.Wrap(err, "fdesetup list")
+		return out, errors.Wrap(err, "assetCacheTetheratorUtil -j status")
 	}
-
 	return out, nil
 }
 
-func processFDESetupToUsers(bytes []byte) ([]FileVaultUser, error) {
-	var users []FileVaultUser
-	scanner := bufio.NewScanner(strings.NewReader(string(bytes)))
-	for scanner.Scan() {
-		if scanner.Text() == "" {
-			continue
-		}
-		split := strings.Split(scanner.Text(), ",")
-		if len(split) != 2 {
-			err := errors.New("Split string does not contain exactly two elements")
-			return users, err
-		}
-		var user FileVaultUser
-		user.Username = split[0]
-		user.UUID = split[1]
-		users = append(users, user)
+func processTetheratorStatus(bytes []byte) (Status, error) {
+	var status Status
+	err := json.Unmarshal(bytes, &status)
+	if err != nil {
+		return status, errors.Wrap(err, "json.Unmarshal")
 	}
 
-	return users, nil
+	return status, nil
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
