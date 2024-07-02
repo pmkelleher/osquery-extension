@@ -1,12 +1,9 @@
 package tetherator
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"os/exec"
 
-	"github.com/osquery/osquery-go/plugin/table"
 	"github.com/pkg/errors"
 )
 
@@ -41,59 +38,20 @@ type PrimaryInterface struct {
 	Wired        bool   `json:"Wired"`
 }
 
-func DevicesColumns() []table.ColumnDefinition {
-	return []table.ColumnDefinition{
-		table.TextColumn("name"),
-		table.TextColumn("serial_number"),
-		table.IntegerColumn("bridged"),
-		table.IntegerColumn("check_in_attempts"),
-		table.IntegerColumn("check_in_pending"),
-		table.IntegerColumn("checked_in"),
-		table.IntegerColumn("location_id"),
-		table.IntegerColumn("paired"),
-	}
-}
-
-// Generate will be called whenever the table is queried. Since our data in these
-// plugins is flat it will return a single row.
-func DevicesGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
-	var results []map[string]string
-	devices, err := getTetheratorDevices()
-	if err != nil {
-		fmt.Println(err)
-		return results, err
-	}
-
-	for _, device := range devices {
-		results = append(results, map[string]string{
-			"name":              device.Name,
-			"serial_number":     device.SerialNumber,
-			"bridged":           fmt.Sprintf("%d", boolToInt(device.Bridged)),
-			"check_in_attempts": fmt.Sprintf("%d", device.CheckInAttempts),
-			"check_in_pending":  fmt.Sprintf("%d", boolToInt(device.CheckInPending)),
-			"checked_in":        fmt.Sprintf("%d", boolToInt(device.CheckedIn)),
-			"location_id":       fmt.Sprintf("%d", device.LocationID),
-			"paired":            fmt.Sprintf("%d", boolToInt(device.Paired)),
-		})
-	}
-
-	return results, nil
-}
-
-func getTetheratorDevices() ([]Device, error) {
-	var devices []Device
+func GetTetheratorStatus() (Status, error) {
+	var status Status
 
 	bytes, err := runAssetCacheTetheratorStatus()
 	if err != nil {
-		return devices, errors.Wrap(err, "runAssetCacheTetheratorStatus")
+		return status, errors.Wrap(err, "runAssetCacheTetheratorStatus")
 	}
 
-	status, err := processTetheratorStatus(bytes)
+	err = json.Unmarshal(bytes, &status)
 	if err != nil {
-		return devices, errors.Wrap(err, "processTetheratorStatus")
+		return status, errors.Wrap(err, "json.Unmarshal")
 	}
 
-	return status.Result.DeviceRoster, nil
+	return status, nil
 }
 
 func runAssetCacheTetheratorStatus() ([]byte, error) {
@@ -104,17 +62,7 @@ func runAssetCacheTetheratorStatus() ([]byte, error) {
 	return out, nil
 }
 
-func processTetheratorStatus(bytes []byte) (Status, error) {
-	var status Status
-	err := json.Unmarshal(bytes, &status)
-	if err != nil {
-		return status, errors.Wrap(err, "json.Unmarshal")
-	}
-
-	return status, nil
-}
-
-func boolToInt(b bool) int {
+func BoolToInt(b bool) int {
 	if b {
 		return 1
 	}

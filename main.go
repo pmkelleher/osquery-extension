@@ -68,7 +68,8 @@ func main() {
 	if runtime.GOOS == "darwin" {
 		darwinPlugins := []osquery.OsqueryPlugin{
 			table.NewPlugin("filevault_users", filevaultusers.FileVaultUsersColumns(), filevaultusers.FileVaultUsersGenerate),
-			table.NewPlugin("tetherator", tetherator.DevicesColumns(), tetherator.DevicesGenerate),
+			table.NewPlugin("tetherator_roster", tetherator.TetheratorRosterColumns(), tetherator.TetheratorRosterGenerate),
+			table.NewPlugin("tetherator_status", tetherator.TetheratorStatusColumns(), tetherator.TetheratorStatusGenerate),
 			table.NewPlugin("macos_profiles", macosprofiles.MacOSProfilesColumns(), macosprofiles.MacOSProfilesGenerate),
 			table.NewPlugin("mdm", mdm.MDMInfoColumns(), mdm.MDMInfoGenerate),
 			table.NewPlugin("munki_info", munki.MunkiInfoColumns(), munki.MunkiInfoGenerate),

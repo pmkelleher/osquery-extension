@@ -2,7 +2,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "tetherator",
-    srcs = ["tetherator.go"],
+    srcs = ["tetherator.go", "tetherator_roster.go", "tetherator_status.go"],
     importpath = "github.com/macadmins/osquery-extension/tables/tetherator",
     visibility = ["//visibility:public"],
     deps = [
