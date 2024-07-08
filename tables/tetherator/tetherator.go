@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var GetTetheratorStatus = getTetheratorStatus
+
 type Status struct {
 	Name   string `json:"name"`
 	Result Result `json:"result"`
@@ -38,7 +40,7 @@ type PrimaryInterface struct {
 	Wired        bool   `json:"Wired"`
 }
 
-func GetTetheratorStatus() (Status, error) {
+func getTetheratorStatus() (Status, error) {
 	var status Status
 
 	bytes, err := runAssetCacheTetheratorStatus()

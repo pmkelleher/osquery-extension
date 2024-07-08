@@ -10,3 +10,10 @@ go_library(
         "@com_github_pkg_errors//:errors",
     ],
 )
+
+go_test(
+    name = "tetherator_test",
+    srcs = ["tetherator_test.go"],
+    embed = [":tetherator"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)
