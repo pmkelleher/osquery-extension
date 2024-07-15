@@ -27,6 +27,8 @@ import (
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
+var Version = "0"
+
 func main() {
 	var (
 		flSocketPath = flag.String("socket", "", "")
@@ -38,6 +40,15 @@ func main() {
 
 	// allow for osqueryd to create the socket path otherwise it will error
 	time.Sleep(3 * time.Second)
+
+	if Version == "" {
+		panic("Version not set")
+	}
+
+	useragent := sofa.BuildUserAgent(Version)
+	sofaOpts := []sofa.Option{
+		sofa.WithUserAgent(useragent),
+	}
 
 	server, err := osquery.NewExtensionManagerServer(
 		"macadmins_extension",
@@ -79,10 +90,10 @@ func main() {
 			table.NewPlugin("macadmins_unified_log", unifiedlog.UnifiedLogColumns(), unifiedlog.UnifiedLogGenerate),
 			table.NewPlugin("macos_rsr", macosrsr.MacOSRsrColumns(), macosrsr.MacOSRsrGenerate),
 			table.NewPlugin("sofa_security_release_info", sofa.SofaSecurityReleaseInfoColumns(), func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
-				return sofa.SofaSecurityReleaseInfoGenerate(ctx, queryContext, *flSocketPath)
+				return sofa.SofaSecurityReleaseInfoGenerate(ctx, queryContext, *flSocketPath, sofaOpts...)
 			}),
 			table.NewPlugin("sofa_unpatched_cves", sofa.SofaUnpatchedCVEsColumns(), func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
-				return sofa.SofaUnpatchedCVEsGenerate(ctx, queryContext, *flSocketPath)
+				return sofa.SofaUnpatchedCVEsGenerate(ctx, queryContext, *flSocketPath, sofaOpts...)
 			}),
 			table.NewPlugin("authdb", authdb.AuthDBColumns(), authdb.AuthDBGenerate),
 			table.NewPlugin(
