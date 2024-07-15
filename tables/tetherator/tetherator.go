@@ -7,7 +7,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-var GetTetheratorStatus = getTetheratorStatus
+type CommandExecutor interface {
+	ExecCommand(command string, args ...string) ([]byte, error)
+}
+
+type CmdExecutor struct{}
+
+func (r CmdExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
+	cmd := exec.Command(name, args...)
+	// Some shell commands always log to stderr and will pollute osqueryi output if this is set
+	// cmd.Stderr = os.Stderr
+	return cmd.Output()
+}
 
 type Status struct {
 	Name   string `json:"name"`
@@ -40,10 +51,10 @@ type PrimaryInterface struct {
 	Wired        bool   `json:"Wired"`
 }
 
-func getTetheratorStatus() (Status, error) {
+func getTetheratorStatus(cmdExecutor CommandExecutor) (Status, error) {
 	var status Status
 
-	bytes, err := runAssetCacheTetheratorStatus()
+	bytes, err := runAssetCacheTetheratorStatus(cmdExecutor)
 	if err != nil {
 		return status, errors.Wrap(err, "runAssetCacheTetheratorStatus")
 	}
@@ -56,8 +67,8 @@ func getTetheratorStatus() (Status, error) {
 	return status, nil
 }
 
-func runAssetCacheTetheratorStatus() ([]byte, error) {
-	out, err := exec.Command("/usr/bin/assetCacheTetheratorUtil", "-j", "status").Output()
+func runAssetCacheTetheratorStatus(cmdExecutor CommandExecutor) ([]byte, error) {
+	out, err := cmdExecutor.ExecCommand("/usr/bin/assetCacheTetheratorUtil", "-j", "status")
 	if err != nil {
 		return out, errors.Wrap(err, "assetCacheTetheratorUtil -j status")
 	}

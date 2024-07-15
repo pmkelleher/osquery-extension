@@ -20,14 +20,8 @@ func TetheratorRosterColumns() []table.ColumnDefinition {
 	}
 }
 
-func TetheratorRosterGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+func marshalTetheratorRoster(status Status) []map[string]string {
 	var results []map[string]string
-
-	status, err := GetTetheratorStatus()
-	if err != nil {
-		fmt.Println(err)
-		return results, err
-	}
 
 	for _, device := range status.Result.DeviceRoster {
 		results = append(results, map[string]string{
@@ -41,6 +35,19 @@ func TetheratorRosterGenerate(ctx context.Context, queryContext table.QueryConte
 			"paired":            fmt.Sprintf("%d", BoolToInt(device.Paired)),
 		})
 	}
+	return results
+}
+
+func TetheratorRosterGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+	var results []map[string]string
+	cmdExecutor := CmdExecutor{}
+	status, err := getTetheratorStatus(cmdExecutor)
+	if err != nil {
+		fmt.Println(err)
+		return results, err
+	}
+
+	results = marshalTetheratorRoster(status)
 
 	return results, nil
 }

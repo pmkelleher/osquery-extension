@@ -19,15 +19,8 @@ func TetheratorStatusColumns() []table.ColumnDefinition {
 	}
 }
 
-func TetheratorStatusGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+func marshalTetheratorStatus(status Status) []map[string]string {
 	var results []map[string]string
-
-	status, err := GetTetheratorStatus()
-	if err != nil {
-		fmt.Println(err)
-		return results, err
-	}
-
 	primaryInterface := status.Result.PrimaryInterface
 
 	results = append(results, map[string]string{
@@ -39,6 +32,21 @@ func TetheratorStatusGenerate(ctx context.Context, queryContext table.QueryConte
 		"primary_interface_user_readable": primaryInterface.UserReadable,
 		"primary_interface_wired":         fmt.Sprintf("%d", BoolToInt(primaryInterface.Wired)),
 	})
+
+	return results
+}
+
+func TetheratorStatusGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+	var results []map[string]string
+
+	cmdExecutor := CmdExecutor{}
+	status, err := getTetheratorStatus(cmdExecutor)
+	if err != nil {
+		fmt.Println(err)
+		return results, err
+	}
+
+	results = marshalTetheratorStatus(status)
 
 	return results, nil
 }
