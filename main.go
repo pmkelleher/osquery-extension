@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/macadmins/osquery-extension/tables/cfgutil"
 	"github.com/macadmins/osquery-extension/tables/chromeuserprofiles"
 	"github.com/macadmins/osquery-extension/tables/fileline"
 	"github.com/macadmins/osquery-extension/tables/filevaultusers"
@@ -93,6 +94,13 @@ func main() {
 				return sofa.SofaUnpatchedCVEsGenerate(ctx, queryContext, *flSocketPath, sofaOpts...)
 			}),
 			table.NewPlugin("authdb", authdb.AuthDBColumns(), authdb.AuthDBGenerate),
+			table.NewPlugin(
+				"cfgutil_list",
+				cfgutil.CfgutilListColumns(),
+				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+					return cfgutil.CfgutilListGenerate(ctx, queryContext)
+				},
+			),
 			table.NewPlugin(
 				"wifi_network",
 				wifi_network.WifiNetworkColumns(),

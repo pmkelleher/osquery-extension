@@ -38,6 +38,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//tables/authdb",
+        "//tables/cfgutil",
         "//tables/chromeuserprofiles",
         "//tables/fileline",
         "//tables/filevaultusers",

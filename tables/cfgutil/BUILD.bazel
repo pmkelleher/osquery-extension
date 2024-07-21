@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "cfgutil",
+    srcs = [
+        "cfgutil.go",
+        "cfgutil_list.go",
+    ],
+    importpath = "github.com/macadmins/osquery-extension/tables/cfgutil",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_pkg_errors//:errors",
+    ],
+)
+
+go_test(
+    name = "cfgutil_test",
+    srcs = ["cfgutil_test.go"],
+    embed = [":cfgutil"],
+    deps = [
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
