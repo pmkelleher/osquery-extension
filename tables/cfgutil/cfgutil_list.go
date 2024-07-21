@@ -35,7 +35,7 @@ func marshalCfgutilList(commandOutput CommandOutput) []map[string]string {
 func CfgutilListGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 	var results []map[string]string
 	cmdExecutor := CmdExecutor{}
-	status, err := getCommandOutput(cmdExecutor)
+	status, err := getCommandOutput(cmdExecutor, true)
 	if err != nil {
 		fmt.Println(err)
 		return results, err

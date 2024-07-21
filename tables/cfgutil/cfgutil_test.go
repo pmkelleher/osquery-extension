@@ -1,7 +1,6 @@
 package cfgutil
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -11,7 +10,7 @@ import (
 
 func TestExecCommand(t *testing.T) {
 	cmdExecutor := CmdExecutor{}
-	result, err := cmdExecutor.ExecCommand("echo", "hello")
+	result, err := cmdExecutor.ExecCommand("/bin/echo", "hello")
 	assert.NoError(t, err)
 	assert.Equal(t, "hello\n", string(result))
 }
@@ -53,8 +52,13 @@ type MockCommandExecutor struct{}
 
 func (m MockCommandExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
 	// /usr/local/bin/cfgutil --format json list
-	if args[2] == "list" {
+	if len(args) > 0 && args[len(args)-1] == "list" {
 		return mockListJSON, nil
+	}
+	// /usr/local/bin/cfgutil --format json ... get all
+	if len(args) > 0 && args[len(args)-1] == "all" {
+		//placeholder
+		return nil, errors.New("command failed")
 	}
 	return nil, errors.New("command failed")
 }
@@ -71,18 +75,9 @@ func TestListColumns(t *testing.T) {
 	assert.Equal(t, expectedColumns, columns)
 }
 
-func mockCfgutilList() (CommandOutput, error) {
-	var commandOutput CommandOutput
-	err := json.Unmarshal(mockListJSON, &commandOutput)
-	if err != nil {
-		return commandOutput, err
-	}
-	return commandOutput, nil
-}
-
 func TestCfgutilListGenerate(t *testing.T) {
 	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getCommandOutput(mockCmdExecutor)
+	results, err := getCommandOutput(mockCmdExecutor, true)
 	marshaledResults := marshalCfgutilList(results)
 
 	expectedResults := []map[string]string{
