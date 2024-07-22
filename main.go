@@ -95,6 +95,13 @@ func main() {
 			}),
 			table.NewPlugin("authdb", authdb.AuthDBColumns(), authdb.AuthDBGenerate),
 			table.NewPlugin(
+				"cfgutil_get",
+				cfgutil.CfgutilGetColumns(),
+				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+					return cfgutil.CfgutilGetGenerate(ctx, queryContext)
+				},
+			),
+			table.NewPlugin(
 				"cfgutil_list",
 				cfgutil.CfgutilListColumns(),
 				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
