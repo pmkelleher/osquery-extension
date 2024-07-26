@@ -1,7 +1,6 @@
 package tetherator
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -90,15 +89,6 @@ func TestRosterColumns(t *testing.T) {
 		table.IntegerColumn("paired"),
 	}
 	assert.Equal(t, expectedColumns, columns)
-}
-
-func mockGetTetheratorStatus() (Status, error) {
-	var status Status
-	err := json.Unmarshal(mockStatusJSON, &status)
-	if err != nil {
-		return status, err
-	}
-	return status, nil
 }
 
 func TestTetheratorStatusGenerate(t *testing.T) {
