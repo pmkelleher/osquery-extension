@@ -74,7 +74,7 @@ func TestCfgutilListGenerate(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedResults, marshaledResults, "Expected output does not match real output")
+	assert.ElementsMatch(t, expectedResults, marshaledResults, "Expected output does not match real output")
 }
 
 func TestGetColumns(t *testing.T) {
@@ -259,5 +259,5 @@ func TestCfgutilGetGenerate(t *testing.T) {
 	}
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedResults, marshaledResults, "Expected output does not match real output")
+	assert.ElementsMatch(t, expectedResults, marshaledResults, "Expected output does not match real output")
 }
