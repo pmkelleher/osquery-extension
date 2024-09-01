@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "content_caching",
+    srcs = [
+        "content_caching.go",
+        "content_caching_status.go",
+        "json.go",
+    ],
+    importpath = "github.com/macadmins/osquery-extension/tables/content_caching",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_osquery_osquery_go//:osquery-go",
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_pkg_errors//:errors",
+    ],
+)
+
+go_test(
+    name = "content_caching_test",
+    srcs = ["content_caching_test.go"],
+    embed = [":content_caching"],
+    deps = [
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
