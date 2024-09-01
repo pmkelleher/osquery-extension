@@ -108,6 +108,13 @@ func main() {
 					return content_caching.CCStatusGenerate(ctx, queryContext)
 				},
 			),
+			table.NewPlugin(
+				"content_caching_peers",
+				content_caching.CCPeersColumns(),
+				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+					return content_caching.CCPeersGenerate(ctx, queryContext)
+				},
+			),
 		}
 		plugins = append(plugins, darwinPlugins...)
 	}

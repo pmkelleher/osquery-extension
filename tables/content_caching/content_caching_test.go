@@ -25,7 +25,7 @@ func (m MockCommandExecutor) ExecCommand(name string, args ...string) ([]byte, e
 	return nil, errors.New("command failed")
 }
 
-func TestListColumns(t *testing.T) {
+func TestCCStatusColumns(t *testing.T) {
 	columns := CCStatusColumns()
 	expectedColumns := []table.ColumnDefinition{
 		table.IntegerColumn("activated"),
@@ -103,6 +103,61 @@ func TestCCStatusGenerate(t *testing.T) {
 			"total_bytes_stored_from_origin":   "2223348868",
 			"total_bytes_stored_from_parents":  "0",
 			"total_bytes_stored_from_peers":    "407438680",
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, expectedResults, marshaledResults, "Expected output does not match real output")
+}
+
+func TestCCPeersColumns(t *testing.T) {
+	columns := CCPeersColumns()
+	expectedColumns := []table.ColumnDefinition{
+		table.TextColumn("address"),
+		table.IntegerColumn("ac_power"),
+		table.BigIntColumn("cache_size"),
+		table.IntegerColumn("im"),
+		table.IntegerColumn("ns"),
+		table.IntegerColumn("pc"),
+		table.IntegerColumn("query_parameters"),
+		table.IntegerColumn("sc"),
+		table.IntegerColumn("ur"),
+		table.IntegerColumn("is_portable"),
+		table.IntegerColumn("local_network_speed"),
+		table.IntegerColumn("local_network_wired"),
+		table.IntegerColumn("friendly"),
+		table.TextColumn("guid"),
+		table.IntegerColumn("healthy"),
+		table.IntegerColumn("port"),
+		table.TextColumn("version"),
+	}
+	assert.Equal(t, expectedColumns, columns)
+}
+
+func TestCCPeersGenerate(t *testing.T) {
+	mockCmdExecutor := MockCommandExecutor{}
+	results, err := getCommandOutput(mockCmdExecutor)
+	marshaledResults := marshalCCPeers(results)
+
+	expectedResults := []map[string]string{
+		{
+			"address":             "192.168.1.168",
+			"ac_power":            "1",
+			"cache_size":          "178000000000",
+			"im":                  "1",
+			"ns":                  "1",
+			"pc":                  "1",
+			"query_parameters":    "1",
+			"sc":                  "1",
+			"ur":                  "1",
+			"is_portable":         "1",
+			"local_network_speed": "1000",
+			"local_network_wired": "1",
+			"friendly":            "1",
+			"guid":                "8D9EF992-5D88-41F3-8FBD-594B2CCFA6A9",
+			"healthy":             "1",
+			"port":                "58010",
+			"version":             "247",
 		},
 	}
 

@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "content_caching.go",
         "content_caching_status.go",
+        "content_caching_peers.go",
         "json.go",
     ],
     importpath = "github.com/macadmins/osquery-extension/tables/content_caching",
