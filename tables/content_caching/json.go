@@ -17,7 +17,34 @@ var mockJSON = []byte(`{
     "CacheLimit": 128000000000,
     "CacheStatus": "OK",
     "CacheUsed": 54039208668,
-    "Parents": [],
+    "Parents": [
+      {
+        "address": "192.168.1.65",
+        "details": {
+          "ac-power": true,
+          "cache-size": 128000000000,
+          "capabilities": {
+            "im": true,
+            "ns": true,
+            "pc": true,
+            "query-parameters": true,
+            "sc": true,
+            "ur": true
+          },
+          "is-portable": false,
+          "local-network": [
+            {
+              "speed": 1000,
+              "wired": true
+            }
+          ]
+        },
+        "guid": "57E5635D-F0C3-4BB4-B9C5-F9B97C5D6493",
+        "healthy": true,
+        "port": 49153,
+        "version": "247"
+      }
+    ],
     "Peers": [
       {
         "address": "192.168.1.168",

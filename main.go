@@ -109,10 +109,10 @@ func main() {
 				},
 			),
 			table.NewPlugin(
-				"content_caching_peers",
-				content_caching.CCPeersColumns(),
+				"content_caching_nodes",
+				content_caching.CCNodesColumns(),
 				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
-					return content_caching.CCPeersGenerate(ctx, queryContext)
+					return content_caching.CCNodesGenerate(ctx, queryContext)
 				},
 			),
 		}

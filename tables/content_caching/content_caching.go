@@ -32,37 +32,36 @@ type CommandOutput struct {
 }
 
 type Result struct {
-	Activated       bool         `json:"Activated"`
-	Active          bool         `json:"Active"`
-	ActualCacheUsed uint64       `json:"ActualCacheUsed"`
-	CacheDetails    CacheDetails `json:"CacheDetails"`
-	CacheFree       uint64       `json:"CacheFree"`
-	CacheLimit      uint64       `json:"CacheLimit"`
-	CacheStatus     string       `json:"CacheStatus"`
-	CacheUsed       uint64       `json:"CacheUsed"`
-	// Assuming that parents use the same structure as peers for now
-	Parents                      []Peer   `json:"Parents"`
-	Peers                        []Peer   `json:"Peers"`
-	PersonalCacheFree            uint64   `json:"PersonalCacheFree"`
-	PersonalCacheLimit           uint64   `json:"PersonalCacheLimit"`
-	PersonalCacheUsed            uint64   `json:"PersonalCacheUsed"`
-	Port                         int      `json:"Port"`
-	PrivateAddresses             []string `json:"PrivateAddresses"`
-	PublicAddress                string   `json:"PublicAddress"`
-	RegistrationStatus           int      `json:"RegistrationStatus"`
-	RestrictedMedia              bool     `json:"RestrictedMedia"`
-	ServerGUID                   string   `json:"ServerGUID"`
-	StartupStatus                string   `json:"StartupStatus"`
-	TetheratorStatus             int      `json:"TetheratorStatus"`
-	TotalBytesAreSince           string   `json:"TotalBytesAreSince"`
-	TotalBytesDropped            uint64   `json:"TotalBytesDropped"`
-	TotalBytesImported           uint64   `json:"TotalBytesImported"`
-	TotalBytesReturnedToChildren uint64   `json:"TotalBytesReturnedToChildren"`
-	TotalBytesReturnedToClients  uint64   `json:"TotalBytesReturnedToClients"`
-	TotalBytesReturnedToPeers    uint64   `json:"TotalBytesReturnedToPeers"`
-	TotalBytesStoredFromOrigin   uint64   `json:"TotalBytesStoredFromOrigin"`
-	TotalBytesStoredFromParents  uint64   `json:"TotalBytesStoredFromParents"`
-	TotalBytesStoredFromPeers    uint64   `json:"TotalBytesStoredFromPeers"`
+	Activated                    bool         `json:"Activated"`
+	Active                       bool         `json:"Active"`
+	ActualCacheUsed              uint64       `json:"ActualCacheUsed"`
+	CacheDetails                 CacheDetails `json:"CacheDetails"`
+	CacheFree                    uint64       `json:"CacheFree"`
+	CacheLimit                   uint64       `json:"CacheLimit"`
+	CacheStatus                  string       `json:"CacheStatus"`
+	CacheUsed                    uint64       `json:"CacheUsed"`
+	Parents                      []Node       `json:"Parents"`
+	Peers                        []Node       `json:"Peers"`
+	PersonalCacheFree            uint64       `json:"PersonalCacheFree"`
+	PersonalCacheLimit           uint64       `json:"PersonalCacheLimit"`
+	PersonalCacheUsed            uint64       `json:"PersonalCacheUsed"`
+	Port                         int          `json:"Port"`
+	PrivateAddresses             []string     `json:"PrivateAddresses"`
+	PublicAddress                string       `json:"PublicAddress"`
+	RegistrationStatus           int          `json:"RegistrationStatus"`
+	RestrictedMedia              bool         `json:"RestrictedMedia"`
+	ServerGUID                   string       `json:"ServerGUID"`
+	StartupStatus                string       `json:"StartupStatus"`
+	TetheratorStatus             int          `json:"TetheratorStatus"`
+	TotalBytesAreSince           string       `json:"TotalBytesAreSince"`
+	TotalBytesDropped            uint64       `json:"TotalBytesDropped"`
+	TotalBytesImported           uint64       `json:"TotalBytesImported"`
+	TotalBytesReturnedToChildren uint64       `json:"TotalBytesReturnedToChildren"`
+	TotalBytesReturnedToClients  uint64       `json:"TotalBytesReturnedToClients"`
+	TotalBytesReturnedToPeers    uint64       `json:"TotalBytesReturnedToPeers"`
+	TotalBytesStoredFromOrigin   uint64       `json:"TotalBytesStoredFromOrigin"`
+	TotalBytesStoredFromParents  uint64       `json:"TotalBytesStoredFromParents"`
+	TotalBytesStoredFromPeers    uint64       `json:"TotalBytesStoredFromPeers"`
 }
 
 type CacheDetails struct {
@@ -73,17 +72,17 @@ type CacheDetails struct {
 	Other           uint64 `json:"Other"`
 }
 
-type Peer struct {
+type Node struct {
 	Address  string      `json:"address"`
-	Details  PeerDetails `json:"details"`
-	Friendly bool        `json:"friendly"`
+	Details  NodeDetails `json:"details"`
+	Friendly *bool       `json:"friendly"`
 	GUID     string      `json:"guid"`
 	Healthy  bool        `json:"healthy"`
 	Port     int         `json:"port"`
 	Version  string      `json:"version"`
 }
 
-type PeerDetails struct {
+type NodeDetails struct {
 	AcPower      bool           `json:"ac-power"`
 	CacheSize    uint64         `json:"cache-size"`
 	Capabilities Capabilities   `json:"capabilities"`

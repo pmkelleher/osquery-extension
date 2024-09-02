@@ -110,9 +110,10 @@ func TestCCStatusGenerate(t *testing.T) {
 	assert.ElementsMatch(t, expectedResults, marshaledResults, "Expected output does not match real output")
 }
 
-func TestCCPeersColumns(t *testing.T) {
-	columns := CCPeersColumns()
+func TestCCNodesColumns(t *testing.T) {
+	columns := CCNodesColumns()
 	expectedColumns := []table.ColumnDefinition{
+		table.TextColumn(("type")),
 		table.TextColumn("address"),
 		table.IntegerColumn("ac_power"),
 		table.BigIntColumn("cache_size"),
@@ -134,13 +135,14 @@ func TestCCPeersColumns(t *testing.T) {
 	assert.Equal(t, expectedColumns, columns)
 }
 
-func TestCCPeersGenerate(t *testing.T) {
+func TestCCNodesGenerate(t *testing.T) {
 	mockCmdExecutor := MockCommandExecutor{}
 	results, err := getCommandOutput(mockCmdExecutor)
-	marshaledResults := marshalCCPeers(results)
+	marshaledResults := marshalAllCCNodes(results)
 
 	expectedResults := []map[string]string{
 		{
+			"type":                "peer",
 			"address":             "192.168.1.168",
 			"ac_power":            "1",
 			"cache_size":          "178000000000",
@@ -157,6 +159,26 @@ func TestCCPeersGenerate(t *testing.T) {
 			"guid":                "8D9EF992-5D88-41F3-8FBD-594B2CCFA6A9",
 			"healthy":             "1",
 			"port":                "58010",
+			"version":             "247",
+		},
+		{
+			"type":                "parent",
+			"address":             "192.168.1.65",
+			"ac_power":            "1",
+			"cache_size":          "128000000000",
+			"im":                  "1",
+			"ns":                  "1",
+			"pc":                  "1",
+			"query_parameters":    "1",
+			"sc":                  "1",
+			"ur":                  "1",
+			"is_portable":         "0",
+			"local_network_speed": "1000",
+			"local_network_wired": "1",
+			"friendly":            "",
+			"guid":                "57E5635D-F0C3-4BB4-B9C5-F9B97C5D6493",
+			"healthy":             "1",
+			"port":                "49153",
 			"version":             "247",
 		},
 	}
