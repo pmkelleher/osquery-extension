@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "tetherator",
+    srcs = [
+        "tetherator.go",
+        "tetherator_roster.go",
+        "tetherator_status.go",
+    ],
+    importpath = "github.com/macadmins/osquery-extension/tables/tetherator",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_pkg_errors//:errors",
+    ],
+)
+
+go_test(
+    name = "tetherator_test",
+    srcs = ["tetherator_test.go"],
+    embed = [":tetherator"],
+    deps = [
+        "@com_github_osquery_osquery_go//plugin/table",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
