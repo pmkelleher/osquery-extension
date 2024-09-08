@@ -39,6 +39,7 @@ go_library(
     deps = [
         "//tables/authdb",
         "//tables/cfgutil",
+        "//tables/content_caching",
         "//tables/chromeuserprofiles",
         "//tables/fileline",
         "//tables/filevaultusers",

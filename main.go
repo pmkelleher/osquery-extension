@@ -9,6 +9,7 @@ import (
 
 	"github.com/macadmins/osquery-extension/tables/cfgutil"
 	"github.com/macadmins/osquery-extension/tables/chromeuserprofiles"
+	"github.com/macadmins/osquery-extension/tables/content_caching"
 	"github.com/macadmins/osquery-extension/tables/fileline"
 	"github.com/macadmins/osquery-extension/tables/filevaultusers"
 	macosprofiles "github.com/macadmins/osquery-extension/tables/macos_profiles"
@@ -113,6 +114,20 @@ func main() {
 				wifi_network.WifiNetworkColumns(),
 				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 					return wifi_network.WifiNetworkGenerate(ctx, queryContext, *flSocketPath)
+				},
+			),
+			table.NewPlugin(
+				"content_caching",
+				content_caching.CCStatusColumns(),
+				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+					return content_caching.CCStatusGenerate(ctx, queryContext)
+				},
+			),
+			table.NewPlugin(
+				"content_caching_nodes",
+				content_caching.CCNodesColumns(),
+				func(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
+					return content_caching.CCNodesGenerate(ctx, queryContext)
 				},
 			),
 		}
