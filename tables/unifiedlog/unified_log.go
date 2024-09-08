@@ -67,6 +67,7 @@ func UnifiedLogColumns() []table.ColumnDefinition {
 		table.TextColumn("predicate"),
 		table.TextColumn("last"),
 		table.TextColumn("log_level"),
+		table.TextColumn("archive"),
 	}
 }
 
@@ -74,6 +75,7 @@ func UnifiedLogGenerate(ctx context.Context, queryContext table.QueryContext) ([
 	predicate := ""
 	last := ""
 	logLevel := ""
+	archive := ""
 
 	if constraintList, present := queryContext.Constraints["predicate"]; present {
 		// 'predicate' is in the where clause
@@ -102,6 +104,15 @@ func UnifiedLogGenerate(ctx context.Context, queryContext table.QueryContext) ([
 		}
 	}
 
+	if constraintList, present := queryContext.Constraints["archive"]; present {
+		// 'archive' is in the where clause
+		for _, constraint := range constraintList.Constraints {
+			if constraint.Operator == table.OperatorEquals {
+				archive = constraint.Expression
+			}
+		}
+	}
+
 	// If there's no predicate, return empty results. This prevents crashing
 	// osquery or the extension when the table attempts to load everything in
 	// the unified log. This behavior is consistent with osquery tables like
@@ -110,14 +121,14 @@ func UnifiedLogGenerate(ctx context.Context, queryContext table.QueryContext) ([
 		return []map[string]string{}, nil
 	}
 
-	output, err := execute(predicate, last, logLevel)
+	output, err := execute(predicate, last, logLevel, archive)
 	if err != nil {
 		return nil, err
 	}
 	return output, nil
 }
 
-func execute(predicate string, last string, logLevel string) ([]map[string]string, error) {
+func execute(predicate string, last string, logLevel string, archive string) ([]map[string]string, error) {
 	var output []map[string]string
 	var unifiedlogs []UnifiedLog
 	bin := "/usr/bin/log"
@@ -140,6 +151,11 @@ func execute(predicate string, last string, logLevel string) ([]map[string]strin
 	if predicate != "" {
 		args = append(args, "--predicate")
 		args = append(args, predicate)
+	}
+
+	if archive != "" {
+		args = append(args, "--archive")
+		args = append(args, archive)
 	}
 
 	cmd := exec.Command(bin, args...)
@@ -178,6 +194,7 @@ func execute(predicate string, last string, logLevel string) ([]map[string]strin
 			"predicate":                  predicate,
 			"last":                       last,
 			"log_level":                  logLevel,
+			"archive":                    archive,
 		})
 	}
 
