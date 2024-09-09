@@ -1,36 +1,12 @@
 package cfgutil
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestExecCommand(t *testing.T) {
-	cmdExecutor := CmdExecutor{}
-	result, err := cmdExecutor.ExecCommand("/bin/echo", "hello")
-	assert.NoError(t, err)
-	assert.Equal(t, "hello\n", string(result))
-}
-
-type MockCommandExecutor struct{}
-
-func (m MockCommandExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	// /usr/local/bin/cfgutil --format json list
-	if len(args) > 0 && args[len(args)-1] == "list" {
-		fmt.Println("Returning mockListJSON")
-		return mockListJSON, nil
-	}
-	// /usr/local/bin/cfgutil --format json ... -f get all
-	if len(args) > 0 && args[len(args)-1] == "all" {
-		fmt.Println("Returning mockAllJSON")
-		return mockAllJSON, nil
-	}
-	return nil, errors.New("command failed")
-}
 
 func TestListColumns(t *testing.T) {
 	columns := CfgutilListColumns()
@@ -45,8 +21,13 @@ func TestListColumns(t *testing.T) {
 }
 
 func TestCfgutilListGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getCommandOutput(mockCmdExecutor, true)
+	runner := utils.MockCmdRunner{
+		Output: string(mockListJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r, true)
 	marshaledResults := marshalCfgutilList(results)
 
 	expectedResults := []map[string]string{
@@ -139,8 +120,13 @@ func TestGetColumns(t *testing.T) {
 }
 
 func TestCfgutilGetGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getCommandOutput(mockCmdExecutor, false)
+	runner := utils.MockCmdRunner{
+		Output: string(mockAllJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r, true)
 	marshaledResults := marshalCfgutilGet(results)
 
 	expectedResults := []map[string]string{

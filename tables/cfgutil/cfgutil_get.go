@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -137,7 +138,7 @@ func marshalCfgutilGet(commandOutput CommandOutput) []map[string]string {
 func CfgutilGetGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 	var results []map[string]string
 	ecidList := processContextConstraints(queryContext)
-	cmdExecutor := CmdExecutor{}
+	cmdExecutor := utils.NewRunner()
 	status, err := getCommandOutput(cmdExecutor, false, ecidList...)
 	if err != nil {
 		fmt.Println(err)

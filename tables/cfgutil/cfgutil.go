@@ -2,28 +2,10 @@ package cfgutil
 
 import (
 	"encoding/json"
-	"os"
-	"os/exec"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/pkg/errors"
 )
-
-type CommandExecutor interface {
-	ExecCommand(command string, args ...string) ([]byte, error)
-}
-
-type CmdExecutor struct{}
-
-func (r CmdExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		return nil, errors.Wrap(err, "binary is not installed")
-	}
-
-	cmd := exec.Command(name, args...)
-	// Some shell commands always log to stderr and will pollute osqueryi output if this is set
-	// cmd.Stderr = os.Stderr
-	return cmd.Output()
-}
 
 type Device struct {
 	AcceptsSupervision          bool   `json:"acceptsSupervision"`
@@ -91,10 +73,12 @@ type CommandOutput struct {
 	Devices []string          `json:"Devices"`
 }
 
-func getCommandOutput(cmdExecutor CommandExecutor, isList bool, ECIDS ...string) (CommandOutput, error) {
+func getCommandOutput(r utils.Runner, isList bool, ECIDS ...string) (CommandOutput, error) {
 	var commandOutput CommandOutput
 
-	bytes, err := queryCfgutil(cmdExecutor, isList, ECIDS...)
+	cfgutilArgs := createCfgutilArgs(isList, ECIDS...)
+	bytes, err := r.Runner.RunCmd("/usr/local/bin/cfgutil", cfgutilArgs...)
+
 	if err != nil {
 		return commandOutput, errors.Wrap(err, "cfgutil")
 	}
@@ -107,7 +91,7 @@ func getCommandOutput(cmdExecutor CommandExecutor, isList bool, ECIDS ...string)
 	return commandOutput, nil
 }
 
-func queryCfgutil(cmdExecutor CommandExecutor, isList bool, ECIDS ...string) ([]byte, error) {
+func createCfgutilArgs(isList bool, ECIDS ...string) []string {
 	cfgutilArgs := []string{"--format", "json"}
 
 	if isList {
@@ -118,11 +102,8 @@ func queryCfgutil(cmdExecutor CommandExecutor, isList bool, ECIDS ...string) ([]
 		}
 		cfgutilArgs = append(cfgutilArgs, "-f", "get", "all")
 	}
-	out, err := cmdExecutor.ExecCommand("/usr/local/bin/cfgutil", cfgutilArgs...)
-	if err != nil {
-		return out, errors.Wrap(err, "cfgutil command failed")
-	}
-	return out, nil
+
+	return cfgutilArgs
 }
 
 func BoolToInt(b bool) int {
