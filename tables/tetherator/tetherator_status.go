@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -39,8 +40,8 @@ func marshalTetheratorStatus(status Status) []map[string]string {
 func TetheratorStatusGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 	var results []map[string]string
 
-	cmdExecutor := CmdExecutor{}
-	status, err := getTetheratorStatus(cmdExecutor)
+	cmdExecutor := utils.NewRunner()
+	status, err := getCommandOutput(cmdExecutor)
 	if err != nil {
 		fmt.Println(err)
 		return results, err

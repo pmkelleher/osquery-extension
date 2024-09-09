@@ -3,28 +3,10 @@ package content_caching
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"os/exec"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/pkg/errors"
 )
-
-type CommandExecutor interface {
-	ExecCommand(command string, args ...string) ([]byte, error)
-}
-
-type CmdExecutor struct{}
-
-func (r CmdExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	if _, err := os.Stat(name); os.IsNotExist(err) {
-		return nil, errors.Wrap(err, "binary is not installed")
-	}
-
-	cmd := exec.Command(name, args...)
-	// Some shell commands always log to stderr and will pollute osqueryi output if this is set
-	// cmd.Stderr = os.Stderr
-	return cmd.Output()
-}
 
 type CommandOutput struct {
 	Name   string `json:"name"`
@@ -104,12 +86,14 @@ type LocalNetwork struct {
 	Wired bool `json:"wired"`
 }
 
-func getCommandOutput(cmdExecutor CommandExecutor) (CommandOutput, error) {
+func getCommandOutput(r utils.Runner) (CommandOutput, error) {
 	var commandOutput CommandOutput
 
-	bytes, err := queryCacheManagerUtil(cmdExecutor)
+	args := []string{"--json", "status"}
+
+	bytes, err := r.Runner.RunCmd("/usr/bin/assetCacheManagerUtil", args...)
 	if err != nil {
-		return commandOutput, errors.Wrap(err, "assetCacheManagerUtil")
+		return commandOutput, errors.Wrap(err, "assetCacheManagerUtil command failed")
 	}
 
 	err = json.Unmarshal(bytes, &commandOutput)
@@ -118,16 +102,6 @@ func getCommandOutput(cmdExecutor CommandExecutor) (CommandOutput, error) {
 	}
 
 	return commandOutput, nil
-}
-
-func queryCacheManagerUtil(cmdExecutor CommandExecutor) ([]byte, error) {
-	args := []string{"--json", "status"}
-
-	out, err := cmdExecutor.ExecCommand("/usr/bin/assetCacheManagerUtil", args...)
-	if err != nil {
-		return out, errors.Wrap(err, "assetCacheManagerUtil command failed")
-	}
-	return out, nil
 }
 
 func BoolToString(b bool) string {

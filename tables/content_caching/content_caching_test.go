@@ -1,29 +1,12 @@
 package content_caching
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestExecCommand(t *testing.T) {
-	cmdExecutor := CmdExecutor{}
-	result, err := cmdExecutor.ExecCommand("/bin/echo", "hello")
-	assert.NoError(t, err)
-	assert.Equal(t, "hello\n", string(result))
-}
-
-type MockCommandExecutor struct{}
-
-func (m MockCommandExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	// "/usr/bin/assetCacheManagerUtil" --json status
-	if args[1] == "status" {
-		return mockJSON, nil
-	}
-	return nil, errors.New("command failed")
-}
 
 func TestCCStatusColumns(t *testing.T) {
 	columns := CCStatusColumns()
@@ -65,8 +48,13 @@ func TestCCStatusColumns(t *testing.T) {
 }
 
 func TestCCStatusGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getCommandOutput(mockCmdExecutor)
+	runner := utils.MockCmdRunner{
+		Output: string(mockJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r)
 	marshaledResults := marshalCCStatus(results)
 
 	expectedResults := []map[string]string{
@@ -136,8 +124,13 @@ func TestCCNodesColumns(t *testing.T) {
 }
 
 func TestCCNodesGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getCommandOutput(mockCmdExecutor)
+	runner := utils.MockCmdRunner{
+		Output: string(mockJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r)
 	marshaledResults := marshalAllCCNodes(results)
 
 	expectedResults := []map[string]string{

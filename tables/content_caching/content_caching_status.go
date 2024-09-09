@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 )
 
@@ -91,7 +92,7 @@ func marshalCCStatus(commandOutput CommandOutput) []map[string]string {
 
 func CCStatusGenerate(ctx context.Context, queryContext table.QueryContext) ([]map[string]string, error) {
 	var results []map[string]string
-	cmdExecutor := CmdExecutor{}
+	cmdExecutor := utils.NewRunner()
 	status, err := getCommandOutput(cmdExecutor)
 	if err != nil {
 		fmt.Println(err)

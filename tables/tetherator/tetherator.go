@@ -2,23 +2,10 @@ package tetherator
 
 import (
 	"encoding/json"
-	"os/exec"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/pkg/errors"
 )
-
-type CommandExecutor interface {
-	ExecCommand(command string, args ...string) ([]byte, error)
-}
-
-type CmdExecutor struct{}
-
-func (r CmdExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	cmd := exec.Command(name, args...)
-	// Some shell commands always log to stderr and will pollute osqueryi output if this is set
-	// cmd.Stderr = os.Stderr
-	return cmd.Output()
-}
 
 type Status struct {
 	Name   string `json:"name"`
@@ -51,12 +38,12 @@ type PrimaryInterface struct {
 	Wired        bool   `json:"Wired"`
 }
 
-func getTetheratorStatus(cmdExecutor CommandExecutor) (Status, error) {
+func getCommandOutput(r utils.Runner) (Status, error) {
 	var status Status
 
-	bytes, err := runAssetCacheTetheratorStatus(cmdExecutor)
+	bytes, err := r.Runner.RunCmd("/usr/bin/assetCacheTetheratorUtil", "-j", "status")
 	if err != nil {
-		return status, errors.Wrap(err, "runAssetCacheTetheratorStatus")
+		return status, errors.Wrap(err, "assetCacheTetheratorUtil -j status")
 	}
 
 	err = json.Unmarshal(bytes, &status)
@@ -65,14 +52,6 @@ func getTetheratorStatus(cmdExecutor CommandExecutor) (Status, error) {
 	}
 
 	return status, nil
-}
-
-func runAssetCacheTetheratorStatus(cmdExecutor CommandExecutor) ([]byte, error) {
-	out, err := cmdExecutor.ExecCommand("/usr/bin/assetCacheTetheratorUtil", "-j", "status")
-	if err != nil {
-		return out, errors.Wrap(err, "assetCacheTetheratorUtil -j status")
-	}
-	return out, nil
 }
 
 func BoolToInt(b bool) int {

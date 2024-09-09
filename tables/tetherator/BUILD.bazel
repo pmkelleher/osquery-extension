@@ -10,6 +10,7 @@ go_library(
     importpath = "github.com/macadmins/osquery-extension/tables/tetherator",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/utils",
         "@com_github_osquery_osquery_go//plugin/table",
         "@com_github_pkg_errors//:errors",
     ],
@@ -20,6 +21,7 @@ go_test(
     srcs = ["tetherator_test.go"],
     embed = [":tetherator"],
     deps = [
+        "//pkg/utils",
         "@com_github_osquery_osquery_go//plugin/table",
         "@com_github_stretchr_testify//assert",
     ],

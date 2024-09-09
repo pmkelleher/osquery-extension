@@ -1,19 +1,12 @@
 package tetherator
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/macadmins/osquery-extension/pkg/utils"
 	"github.com/osquery/osquery-go/plugin/table"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestExecCommand(t *testing.T) {
-	cmdExecutor := CmdExecutor{}
-	result, err := cmdExecutor.ExecCommand("echo", "hello")
-	assert.NoError(t, err)
-	assert.Equal(t, "hello\n", string(result))
-}
 
 var mockStatusJSON = []byte(`{
     "name": "status",
@@ -52,16 +45,6 @@ var mockStatusJSON = []byte(`{
     }
 }`)
 
-type MockCommandExecutor struct{}
-
-func (m MockCommandExecutor) ExecCommand(name string, args ...string) ([]byte, error) {
-	// /usr/bin/assetCacheTetheratorUtil -j status
-	if args[1] == "status" {
-		return mockStatusJSON, nil
-	}
-	return nil, errors.New("commad failed")
-}
-
 func TestStatusStatusColumns(t *testing.T) {
 	columns := TetheratorStatusColumns()
 	expectedColumns := []table.ColumnDefinition{
@@ -92,8 +75,13 @@ func TestRosterColumns(t *testing.T) {
 }
 
 func TestTetheratorStatusGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getTetheratorStatus(mockCmdExecutor)
+	runner := utils.MockCmdRunner{
+		Output: string(mockStatusJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r)
 	marshaledResults := marshalTetheratorStatus(results)
 
 	expectedResults := []map[string]string{
@@ -113,8 +101,13 @@ func TestTetheratorStatusGenerate(t *testing.T) {
 }
 
 func TestTetheratorRosterGenerate(t *testing.T) {
-	mockCmdExecutor := MockCommandExecutor{}
-	results, err := getTetheratorStatus(mockCmdExecutor)
+	runner := utils.MockCmdRunner{
+		Output: string(mockStatusJSON),
+		Err:    nil,
+	}
+	r := utils.Runner{}
+	r.Runner = runner
+	results, err := getCommandOutput(r)
 	marshaledResults := marshalTetheratorRoster(results)
 
 	expectedResults := []map[string]string{
